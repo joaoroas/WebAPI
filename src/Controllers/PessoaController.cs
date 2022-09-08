@@ -18,12 +18,16 @@ public class PessoaController : ControllerBase
     }
 
     [HttpGet]
-    public List<Pessoa> Get()
+    public ActionResult<List<Pessoa>> Get()
     {
-       /*  Pessoa pessoa = new Pessoa("João", 30, "1234578");
-        Contrato novoContrato = new Contrato("abc123", 50.60);
-        pessoa.contratos.Add(novoContrato); */
-       return _context.Pessoas.Include(p => p.contratos).ToList();
+       var result = _context.Pessoas.Include(p => p.contratos).ToList();
+
+       if(!result.Any())
+       {
+            return NoContent();
+       }
+       return Ok(result);
+
     }
 
     [HttpPost]
@@ -43,12 +47,19 @@ public class PessoaController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public string Delete([FromRoute]int id)
+    public ActionResult<> Delete([FromRoute]int id)
     {
         var result = _context.Pessoas.SingleOrDefault(e => e.Id == id);
+
+        if(result is null)
+        {
+            return BadRequest();
+        }
 
         _context.Pessoas.Remove(result);
         _context.SaveChanges();
         return $"Deletado pessoa de Id {id}";
     }
+
+
 }
